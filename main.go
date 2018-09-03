@@ -102,17 +102,10 @@ func GetGeneratePassword(w http.ResponseWriter, r *http.Request) {
 
 func PostGeneratePassword(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("content-type", "application/json")
-	reader, err := r.GetBody()
-
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(PostGeneratePasswordResponse{Message: "Internal error", Password: ""})
-		return
-	}
 
 	var postGeneratePasswordRequest PostGeneratePasswordRequest
 
-	err = json.NewDecoder(reader).Decode(postGeneratePasswordRequest)
+	err := json.NewDecoder(r.Body).Decode(&postGeneratePasswordRequest)
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -124,11 +117,12 @@ func PostGeneratePassword(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(PostGeneratePasswordResponse{Message: "Internal error", Password: ""})
+		json.NewEncoder(w).Encode(PostGeneratePasswordResponse{Message: err.Error(), Password: ""})
 		return
 	}
 
 	err = json.NewEncoder(w).Encode(PostGeneratePasswordResponse{Message: "OK", Password: password})
+	w.WriteHeader(http.StatusOK)
 }
 
 func main() {
